@@ -10,12 +10,14 @@ import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
 import com.google.common.cache.CacheBuilder;
+import com.google.common.util.concurrent.RateLimiter;
 
 /**
  * @ClassName:  CacheConfig   
@@ -29,6 +31,22 @@ import com.google.common.cache.CacheBuilder;
 @ComponentScan(value = {"com.tianbao54.cache"})
 public class CacheConfig {
 
+	@Bean(name = "threadPoolTaskExecutor")
+	public ThreadPoolTaskExecutor poolTask () {
+		ThreadPoolTaskExecutor task = new ThreadPoolTaskExecutor();
+		task.setCorePoolSize(10);
+		task.setKeepAliveSeconds(300);
+		task.setMaxPoolSize(20);
+		task.setQueueCapacity(200);
+		return task;
+	}
+	
+	@Bean(name = "rateLimiter")
+	public RateLimiter rateLimiter () {
+		RateLimiter limiter = RateLimiter.create(1);
+		return limiter;
+	}
+	
 	@Bean
 	public ViewResolver viewResolver() {
 		InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
